@@ -1,4 +1,4 @@
-class {{classname}} {
+class {{classname}} { 
   {{#vars}}
   {{#description}}/* {{{description}}} */{{/description}}
   {{{dataType}}} {{name}} = {{{defaultValue}}};
@@ -33,10 +33,15 @@ class {{classname}} {
       {{/isListContainer}}
       {{^isListContainer}}
       {{#isMapContainer}}
-      {{name}} = {{complexType}}.mapFromJson(json['{{baseName}}']);
+      {{name}} = convert.json.decode(json['{{baseName}}']);
       {{/isMapContainer}}
       {{^isMapContainer}}
+      {{^allowableValues}}
       {{name}} = new {{complexType}}.fromJson(json['{{baseName}}']);
+      {{/allowableValues}}
+      {{#allowableValues}}
+      {{name}} = {{complexType}}TypeTransformer.decode(json['{{baseName}}']);
+      {{/allowableValues}}
       {{/isMapContainer}}
       {{/isListContainer}}
     {{/complexType}}
