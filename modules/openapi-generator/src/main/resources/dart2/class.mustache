@@ -28,22 +28,29 @@ class {{classname}} {
   {{^isDateTime}}
   {{^isDate}}
     {{#complexType}}
-      {{#isListContainer}}
-      {{name}} = {{complexType}}.listFromJson(json['{{baseName}}']);
-      {{/isListContainer}}
-      {{^isListContainer}}
-      {{#isMapContainer}}
-      {{name}} = convert.json.decode(json['{{baseName}}']);
-      {{/isMapContainer}}
-      {{^isMapContainer}}
-      {{^allowableValues}}
-      {{name}} = new {{complexType}}.fromJson(json['{{baseName}}']);
-      {{/allowableValues}}
       {{#allowableValues}}
-      {{name}} = {{complexType}}TypeTransformer.decode(json['{{baseName}}']);
+        {{name}} = {{complexType}}TypeTransformer.decode(json['{{baseName}}']);
       {{/allowableValues}}
-      {{/isMapContainer}}
-      {{/isListContainer}}
+      {{^allowableValues}}
+        {{#isListContainer}}
+          {{#items}}
+            {{^isListContainer}}
+              {{name}} = {{complexType}}.listFromJson(json['{{baseName}}']);
+            {{/isListContainer}}
+            {{#isListContainer}}
+              {{name}} = json['{{baseName}}'].map((x) => {{complexType}}.listFromJson(x)).cast<{{{dataType}}}>().toList();;
+            {{/isListContainer}}
+          {{/items}}
+        {{/isListContainer}}
+        {{#isMapContainer}}
+          {{name}} = convert.json.decode(json['{{baseName}}']);
+        {{/isMapContainer}}
+        {{^isListContainer}}
+          {{^isMapContainer}}
+            {{name}} = new {{complexType}}.fromJson(json['{{baseName}}']);
+          {{/isMapContainer}}
+        {{/isListContainer}}
+      {{/allowableValues}}      
     {{/complexType}}
     {{^complexType}}
       {{#isListContainer}}
@@ -68,15 +75,37 @@ class {{classname}} {
     return {
     {{#vars}}
       {{#isDateTime}}
-      '{{baseName}}': {{name}} == null ? '' : {{name}}.toUtc().toIso8601String(){{^-last}},{{/-last}}
+        '{{baseName}}': {{name}} == null ? '' : {{name}}.toUtc().toIso8601String(){{^-last}},{{/-last}}
       {{/isDateTime}}
       {{#isDate}}
-      '{{baseName}}': {{name}} == null ? '' : {{name}}.toUtc().toIso8601String(){{^-last}},{{/-last}}
+        '{{baseName}}': {{name}} == null ? '' : {{name}}.toUtc().toIso8601String(){{^-last}},{{/-last}}
       {{/isDate}}
       {{^isDateTime}}
-      {{^isDate}}
-      '{{baseName}}': {{name}}{{^-last}},{{/-last}}
-      {{/isDate}}
+        {{^isDate}}
+          {{^isModel}}
+            {{^isListContainer}}
+              '{{baseName}}': {{name}}{{^-last}},{{/-last}}
+            {{/isListContainer}}
+            {{#isListContainer}}
+              {{#items}}
+                {{^isModel}}
+                  '{{baseName}}': {{name}}{{^-last}},{{/-last}}
+                {{/isModel}}
+                {{#isModel}}
+                  '{{baseName}}': {{name}}.map((x) => x.toJson()).toList(){{^-last}},{{/-last}}
+                {{/isModel}}
+              {{/items}}
+            {{/isListContainer}}
+          {{/isModel}}
+          {{#isModel}}
+            {{^allowableValues}}
+            '{{baseName}}': {{name}}.toJson(){{^-last}},{{/-last}}
+            {{/allowableValues}}
+            {{#allowableValues}}
+            '{{baseName}}': {{name}}.toString(){{^-last}},{{/-last}}
+            {{/allowableValues}}
+          {{/isModel}}
+        {{/isDate}}
       {{/isDateTime}}
     {{/vars}}
     };

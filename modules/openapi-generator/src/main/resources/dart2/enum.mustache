@@ -3,6 +3,11 @@ class {{classname}} {
   /// The underlying value of this enum member.
   final {{dataType}} value;
 
+  @override
+  String toString() {
+    return value;
+  }
+
   const {{classname}}._internal(this.value);
 
   {{#allowableValues}}
@@ -13,6 +18,10 @@ class {{classname}} {
   static const {{classname}} {{{name}}} = const {{classname}}._internal({{{value}}});
     {{/enumVars}}
   {{/allowableValues}}
+  
+  static List<{{classname}}> listFromJson(List<dynamic> json) {
+    return json == null ? new List<{{classname}}>() : json.map((value) => {{classname}}TypeTransformer.decode(value)).toList();
+  }
 
 }
 
