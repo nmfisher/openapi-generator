@@ -309,8 +309,10 @@ public class DefaultCodegen implements CodegenConfig {
                     enumVar.put("name", toEnumVarName(enumName, cm.dataType));
                     enumVar.put("value", toEnumValue(value.toString(), cm.dataType));
                     enumVar.put("isString", isDataTypeString(cm.dataType));
+                    enumVar.put("hasMore", true);
                     enumVars.add(enumVar);
                 }
+                enumVars.get(enumVars.size() - 1).put("hasMore", false);
                 // if "x-enum-varnames" or "x-enum-descriptions" defined, update varnames
                 updateEnumVarsWithExtensions(enumVars, cm.getVendorExtensions());
                 cm.allowableValues.put("enumVars", enumVars);
