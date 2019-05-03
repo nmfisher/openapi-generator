@@ -1,0 +1,38 @@
+namespace {{packageName}}
+
+open {{classname}}HandlerParams
+open {{classname}}ServiceImplementation
+open Microsoft.AspNetCore.Mvc
+open Newtonsoft.Json
+open Microsoft.FSharp.Linq
+
+module {{classname}}Handlers =
+
+    {{#operations}}
+    /// <summary>
+    /// {{description}}
+    /// </summary>
+
+    {{#operation}}
+    //#region {{operationId}}
+    /// <summary>
+    /// {{#summary}}{{summary}}{{/summary}}
+    /// </summary>
+
+   [<FunctionName("{{operationId}}")>]
+    let {{operationId}}
+        ([<HttpTrigger(Extensions.Http.AuthorizationLevel.Anonymous, "{{httpMethod}}", Route = "{{contextPath}}{{path}}")>]
+        req:   {{#hasBodyParam}}{{operationId}}BodyParams{{/hasBodyParam}}{{^hasBodyParam}}HttpRequest{{/hasBodyParam}} ) =
+
+      let result = {{classname}}Service.{{operationId}} req
+      (match result with 
+      {{#responses}}| {{operationId}}{{#isDefault}}Default{{/isDefault}}StatusCode{{^isDefault}}{{code}}{{/isDefault}} resolved ->
+        let json = JsonConvert.SerializeObject resolved.content
+        ContentResult(Content = json, ContentType = "application/json", StatusCode = Nullable({{code}})) 
+      {{/responses}})
+
+    {{/operation}}
+    {{/operations}}
+
+      
+
