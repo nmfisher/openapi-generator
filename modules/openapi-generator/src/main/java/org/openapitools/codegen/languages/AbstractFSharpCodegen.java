@@ -413,33 +413,21 @@ public abstract class AbstractFSharpCodegen extends DefaultCodegen implements Co
             // Get the corresponding models
             CodegenModel model1 = ModelUtils.getModelByName(key1, objs);
             CodegenModel model2 = ModelUtils.getModelByName(key2, objs);
-
-            List<String> complexVars1 = new ArrayList<String>();
-            List<String> complexVars2 = new ArrayList<String>();
             
-            for(CodegenProperty prop : model1.vars) {
-                if(prop.complexType != null)
-                  complexVars1.add(prop.complexType);
-            }  
-            for(CodegenProperty prop : model2.vars) {
-                if(prop.complexType != null)
-                  complexVars2.add(prop.complexType);
-            }                
-            
-            // if first has complex vars and second has none, first is greater
-            if(complexVars1.size() > 0 && complexVars2.size() == 0)
+            // if first has imports second has none, push first to the right
+            if(model1.imports.size() > 0 && model2.imports.size() == 0)
               return 1;
 
-            // if second has complex vars and first has none, first is lesser
-            if(complexVars1.size() == 0 && complexVars2.size() > 0)
+            // if second has imports and first has none, push first to the left
+            if(model1.imports.size() == 0 && model2.imports.size() > 0)
               return -1;
 
-            // if first has complex var that matches the second's key, first is greater
-            if(complexVars1.contains(key2))
+            // if first has import that matches the second's key, push first to the right
+            if(model1.imports.contains(key2))
               return 1;
 
-            // if second has complex var that matches the first's key, first is lesser
-            if(complexVars2.contains(key1))
+            // if second has import that matches the first's key, push first to the left
+            if(model2.imports.contains(key1))
               return -1;
 
             // if none of the above, don't care

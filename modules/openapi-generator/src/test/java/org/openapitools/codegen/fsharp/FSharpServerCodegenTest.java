@@ -46,24 +46,14 @@ public class FSharpServerCodegenTest {
   public void testModelsAreSortedAccordingToDependencyOrder() throws Exception {
         final AbstractFSharpCodegen codegen = new P_AbstractFSharpCodegen();
 
-        // parent
         final CodegenModel parent = new CodegenModel();
-        CodegenProperty childProp = new CodegenProperty();
-        childProp.complexType = "child";
-        childProp.name = "child";
-        parent.setVars(Collections.singletonList(childProp));
+        parent.setImports(new HashSet<String>(Arrays.asList("child")));
 
         final CodegenModel child = new CodegenModel();
-        CodegenProperty carProp = new CodegenProperty();
-        carProp.complexType = "car";
-        carProp.name = "car";
-        child.setVars(Collections.singletonList(carProp));
+        child.setImports(new HashSet<String>(Arrays.asList("car")));
 
-        // child
         final CodegenModel car = new CodegenModel();
-        CodegenProperty modelProp = new CodegenProperty();
-        modelProp.name = "model";
-        car.setVars(Collections.singletonList(modelProp));
+        car.setImports(new HashSet<String>(Arrays.asList()));
 
         Map<String, Object> models = new HashMap<String,Object>();
         models.put("parent", Collections.singletonMap("models", Collections.singletonList(Collections.singletonMap("model", parent))));
