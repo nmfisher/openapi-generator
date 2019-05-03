@@ -1,4 +1,4 @@
-class {{classname}} { 
+class {{classname}} {{#interfaces}}extends {{.}}{{/interfaces}} {
   {{#vars}}
   {{#description}}/* {{{description}}} */{{/description}}
   {{{dataType}}} {{name}} = {{{defaultValue}}};
