@@ -34,12 +34,50 @@ public class FsharpFunctionsServerCodegen extends AbstractFSharpCodegen {
     public FsharpFunctionsServerCodegen() {
         super();
 
-        outputFolder = "src";
-        embeddedTemplateDir = templateDir = "fsharp-functions-server";
-        modelPackage = File.separator + "Models";
-        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
-        
+        // CLI options
+        addOption(CodegenConstants.LICENSE_URL,
+                CodegenConstants.LICENSE_URL_DESC,
+                licenseUrl);
+
+        addOption(CodegenConstants.LICENSE_NAME,
+                CodegenConstants.LICENSE_NAME_DESC,
+                licenseName);
+
+        addOption(CodegenConstants.PACKAGE_COPYRIGHT,
+                CodegenConstants.PACKAGE_COPYRIGHT_DESC,
+                packageCopyright);
+
+        addOption(CodegenConstants.PACKAGE_AUTHORS,
+                CodegenConstants.PACKAGE_AUTHORS_DESC,
+                packageAuthors);
+
+        addOption(CodegenConstants.PACKAGE_TITLE,
+                CodegenConstants.PACKAGE_TITLE_DESC,
+                packageTitle);
+
+        addOption(CodegenConstants.PACKAGE_NAME,
+                "F# module name (convention: Title.Case).",
+                packageName);
+
+        addOption(CodegenConstants.PACKAGE_VERSION,
+                "F# package version.",
+                packageVersion);
+
+        addOption(CodegenConstants.OPTIONAL_PROJECT_GUID,
+                CodegenConstants.OPTIONAL_PROJECT_GUID_DESC,
+                null);
+
+        addOption(CodegenConstants.SOURCE_FOLDER,
+                  CodegenConstants.SOURCE_FOLDER_DESC,
+                  sourceFolder);
+    }
+    
+    @Override
+    public void processOpts() {
+        super.processOpts();
+
         modelPackage = "Model";
+        embeddedTemplateDir = templateDir = "fsharp-functions-server";
 
         apiTemplateFiles.put("Handler.mustache", "Handler.fs");    
         apiTemplateFiles.put("HandlerParams.mustache", "HandlerParams.fs"); 
@@ -47,14 +85,15 @@ public class FsharpFunctionsServerCodegen extends AbstractFSharpCodegen {
         apiTemplateFiles.put("ServiceImpl.mustache", "Service.fs"); 
         modelTemplateFiles.put("Model.mustache", ".fs");
 
-        String serviceFolder = sourceFolder + File.separator + "services";
         String implFolder = sourceFolder + File.separator + "impl";
 
+        supportingFiles.add(new SupportingFile("gitignore.mustache", "", ".gitignore"));
         supportingFiles.add(new SupportingFile("build.sh", projectFolder, "build.sh"));
         supportingFiles.add(new SupportingFile("build.cmd", projectFolder, "build.cmd"));
-        supportingFiles.add(new SupportingFile("host.json", projectFolder, "host.json"));
-        supportingFiles.add(new SupportingFile("local.settings.json", projectFolder, "local.settings.json"));
-        supportingFiles.add(new SupportingFile("Project.fsproj.mustache", projectFolder, packageName + ".fsproj"));
+        supportingFiles.add(new SupportingFile("host.json", sourceFolder, "host.json"));
+        supportingFiles.add(new SupportingFile("local.settings.json", sourceFolder, "local.settings.json"));
+        supportingFiles.add(new SupportingFile("Project.fsproj.mustache", sourceFolder, packageName + ".fsproj"));
+
 
     }
 
