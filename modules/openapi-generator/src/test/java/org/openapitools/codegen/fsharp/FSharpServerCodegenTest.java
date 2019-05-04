@@ -46,27 +46,45 @@ public class FSharpServerCodegenTest {
   public void testModelsAreSortedAccordingToDependencyOrder() throws Exception {
         final AbstractFSharpCodegen codegen = new P_AbstractFSharpCodegen();
 
-        final CodegenModel parent = new CodegenModel();
-        parent.setImports(new HashSet<String>(Arrays.asList("child")));
+        final CodegenModel wheel = new CodegenModel();
+        wheel.setImports(new HashSet<String>(Arrays.asList()));
 
-        final CodegenModel child = new CodegenModel();
-        child.setImports(new HashSet<String>(Arrays.asList("car")));
+        final CodegenModel bike = new CodegenModel();
+        bike.setImports(new HashSet<String>(Arrays.asList("wheel")));
+
+        final CodegenModel parent = new CodegenModel();
+        parent.setImports(new HashSet<String>(Arrays.asList("bike", "car")));
 
         final CodegenModel car = new CodegenModel();
-        car.setImports(new HashSet<String>(Arrays.asList()));
+        car.setImports(new HashSet<String>(Arrays.asList("wheel")));
+
+        final CodegenModel child = new CodegenModel();
+        child.setImports(new HashSet<String>(Arrays.asList("car", "bike", "parent")));
 
         Map<String, Object> models = new HashMap<String,Object>();
         models.put("parent", Collections.singletonMap("models", Collections.singletonList(Collections.singletonMap("model", parent))));
         models.put("child", Collections.singletonMap("models", Collections.singletonList(Collections.singletonMap("model", child))));
         models.put("car", Collections.singletonMap("models", Collections.singletonList(Collections.singletonMap("model", car))));
+        models.put("bike", Collections.singletonMap("models", Collections.singletonList(Collections.singletonMap("model", bike))));
+        models.put("wheel", Collections.singletonMap("models", Collections.singletonList(Collections.singletonMap("model", wheel))));
 
         Map<String,Object> sorted = codegen.postProcessDependencyOrders(models);
         
         Object[] keys = sorted.keySet().toArray();
+        System.out.println("############");
+        System.out.println(keys[0]);
+        System.out.println(keys[1]);
+        System.out.println(keys[2]);
+        System.out.println(keys[3]);
+        System.out.println(keys[4]);
 
-        Assert.assertEquals(keys[0], "car");
-        Assert.assertEquals(keys[1], "child");
-        Assert.assertEquals(keys[2], "parent");
+        
+        Assert.assertTrue(keys[0] == "wheel");
+        Assert.assertTrue(keys[1] == "bike" || keys[1] == "car");
+        Assert.assertTrue(keys[2] == "bike" || keys[2] == "car");
+        Assert.assertEquals(keys[3], "parent");
+        Assert.assertEquals(keys[4], "child");
+        
     }
 
     @Test(description = "modify model imports to explicit set namespace and package name")
