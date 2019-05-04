@@ -13,7 +13,7 @@ module {{classname}} =
   //#region {{classname}}
 
   {{^allowableValues}}
-  type {{name}} = {
+  type {{classname}} = {
     {{#vars}}
     {{name}} : {{#isDateTime}}{{^required}}Nullable<{{/required}}{{/isDateTime}}{{{dataType}}}{{#isDateTime}}{{^required}}>{{/required}}{{/isDateTime}};
     {{/vars}}
@@ -21,7 +21,7 @@ module {{classname}} =
   {{/allowableValues}}
   
   {{#allowableValues}}
-  type {{name}} = {{#enumVars}}{{name}} of {{#isString}}string{{/isString}}{{#isInteger}}int{{/isInteger}}{{#isLong}}long{{/isLong}}{{#isByte}}long{{/isByte}} {{#hasMore}}| {{/hasMore}}{{/enumVars}}
+  type {{classname}} = {{#enumVars}}{{name}} of {{#isString}}string{{/isString}}{{#isInteger}}int{{/isInteger}}{{#isLong}}long{{/isLong}}{{#isByte}}long{{/isByte}} {{#hasMore}}| {{/hasMore}}{{/enumVars}}
   {{/allowableValues}}
 
   //#endregion

@@ -3,8 +3,9 @@ namespace {{packageName}}
 open {{classname}}HandlerParams
 open {{classname}}ServiceImplementation
 open Microsoft.AspNetCore.Mvc
+open Microsoft.AspNetCore.Http
 open Newtonsoft.Json
-open Microsoft.FSharp.Linq
+open Microsoft.Azure.WebJobs
 
 module {{classname}}Handlers =
 
@@ -24,12 +25,13 @@ module {{classname}}Handlers =
         ([<HttpTrigger(Extensions.Http.AuthorizationLevel.Anonymous, "{{httpMethod}}", Route = "{{contextPath}}{{path}}")>]
         req:   {{#hasBodyParam}}{{operationId}}BodyParams{{/hasBodyParam}}{{^hasBodyParam}}HttpRequest{{/hasBodyParam}} ) =
 
-      let result = {{classname}}Service.{{operationId}} req
-      (match result with 
-      {{#responses}}| {{operationId}}{{#isDefault}}Default{{/isDefault}}StatusCode{{^isDefault}}{{code}}{{/isDefault}} resolved ->
+      let result = {{classname}}Service.{{operationId}} {{#hasBodyParam}}req{{/hasBodyParam}}{{^hasBodyParam}}(){{/hasBodyParam}}
+      match result with 
+      {{#responses}}
+      | {{operationId}}{{#isDefault}}Default{{/isDefault}}StatusCode{{^isDefault}}{{code}}{{/isDefault}} resolved ->
         let json = JsonConvert.SerializeObject resolved.content
-        ContentResult(Content = json, ContentType = "application/json", StatusCode = Nullable({{code}})) 
-      {{/responses}})
+        ContentResult(Content = json, ContentType = "application/json", StatusCode = System.Nullable({{code}})) 
+      {{/responses}}
 
     {{/operation}}
     {{/operations}}
