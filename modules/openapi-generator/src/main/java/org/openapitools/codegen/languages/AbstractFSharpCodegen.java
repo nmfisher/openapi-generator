@@ -403,51 +403,44 @@ public abstract class AbstractFSharpCodegen extends DefaultCodegen implements Co
     /*
     * F# does not allow forward declarations, so files must be imported in the correct order.
     * Output of CodeGen models must therefore bein dependency order (rather than alphabetical order, which seems to be the default).    
-    * We achieve this by creating a comparator to check whether the first model contains any properties of the comparison model's type 
     * This could probably be made more efficient if absolutely needed.
     */
     @SuppressWarnings({"unchecked"})
     public Map<String,Object> postProcessDependencyOrders(final Map<String, Object> objs) {
-      Comparator<String> comparator = new Comparator<String>() {
-          @Override public int compare(String key1, String key2) {
-            // Get the corresponding models
-            CodegenModel model1 = ModelUtils.getModelByName(key1, objs);
-            CodegenModel model2 = ModelUtils.getModelByName(key2, objs);
-            
-            // if first has imports second has none, push first to the right
-            if(model1.imports.size() > 0 && model2.imports.size() == 0)
-              return 1;
-
-            // if second has imports and first has none, push first to the left
-            if(model1.imports.size() == 0 && model2.imports.size() > 0)
-              return -1;
-
-            // if first has import that matches the second's key, push first to the right
-            if(model1.imports.contains(key2))
-              return 1;
-
-            // if second has import that matches the first's key, push first to the left
-            if(model2.imports.contains(key1))
-              return -1;
-
-            // if none of the above, don't care
-            return 0;
-
-          }
-        };
-        PriorityQueue<String> queue = new PriorityQueue<String>(objs.size(), comparator);
-        for(Object k : objs.keySet()) {
-          queue.add(k.toString());
-        }
-
-        Map<String,Object> sorted = new LinkedHashMap<String,Object>();
         
-        while(queue.size() > 0) {
-          String key = queue.poll();
-          sorted.put(key, objs.get(key));
-        }
-        return sorted;
+      Map<String,Set<String>> dependencies = new HashMap<String,Set<String>>();
+
+      List<String> classNames = new ArrayList<String>();
+        
+      for(String k : objs.keySet()) {
+        CodegenModel model = ModelUtils.getModelByName(k, objs);
+        dependencies.put(model.classname, model.imports);
+        classNames.add(model.classname);
       }
+      
+      Object[] sortedKeys = classNames.toArray();
+
+      for(int i1 = 0 ; i1 < sortedKeys.length; i1++) {
+        String k1 = sortedKeys[i1].toString();
+        for(int i2 = i1 + 1; i2 < sortedKeys.length; i2++) {
+          String k2 = sortedKeys[i2].toString();
+          if(dependencies.get(k2).contains(k1)) {
+            sortedKeys[i2] = k1;
+            sortedKeys[i1] = k2;
+            i1 = -1;
+            break;
+          }
+        }
+      }
+      
+      Map<String,Object> sorted = new LinkedHashMap<String,Object>();
+      for(int i = sortedKeys.length - 1; i >= 0;  i--) {
+        Object k = sortedKeys[i];
+        sorted.put(k.toString(), objs.get(k));
+      }
+
+      return sorted;
+    }
 
     /**
      * F# differs from other languages in that Enums are not _true_ objects; enums are compiled to integral types.
