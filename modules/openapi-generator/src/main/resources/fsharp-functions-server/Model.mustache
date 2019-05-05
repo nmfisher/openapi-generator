@@ -1,0 +1,30 @@
+namespace {{packageName}}.{{modelPackage}}
+
+open System
+open System.Collections.Generic
+{{#imports}}
+open {{import}}
+{{/imports}}
+
+module {{classname}} = 
+
+  {{#models}}
+  {{#model}}
+  //#region {{classname}}
+
+  {{^allowableValues}}
+  type {{classname}} = {
+    {{#vars}}
+    {{name}} : {{#isDateTime}}{{^required}}Nullable<{{/required}}{{/isDateTime}}{{{dataType}}}{{#isDateTime}}{{^required}}>{{/required}}{{/isDateTime}};
+    {{/vars}}
+  }
+  {{/allowableValues}}
+  
+  {{#allowableValues}}
+  type {{classname}} = {{#enumVars}}{{name}} of {{#isString}}string{{/isString}}{{#isInteger}}int{{/isInteger}}{{#isLong}}long{{/isLong}}{{#isByte}}long{{/isByte}} {{#hasMore}}| {{/hasMore}}{{/enumVars}}
+  {{/allowableValues}}
+
+  //#endregion
+  {{/model}}
+  {{/models}}
+  
