@@ -33,6 +33,7 @@ import java.io.File;
 import java.util.*;
 
 import static org.openapitools.codegen.utils.StringUtils.camelize;
+import static org.openapitools.codegen.utils.StringUtils.underscore;
 
 public abstract class AbstractFSharpCodegen extends DefaultCodegen implements CodegenConfig {
 
@@ -249,11 +250,6 @@ public abstract class AbstractFSharpCodegen extends DefaultCodegen implements Co
             additionalProperties.put(CodegenConstants.PACKAGE_NAME, packageName);
         }
 
-        if (additionalProperties.containsKey(CodegenConstants.INVOKER_PACKAGE)) {
-            LOGGER.warn(String.format(Locale.ROOT, "%s is not used by F# generators. Please use %s",
-                    CodegenConstants.INVOKER_PACKAGE, CodegenConstants.PACKAGE_NAME));
-        }
-
         // {{packageTitle}}
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_TITLE)) {
             setPackageTitle((String) additionalProperties.get(CodegenConstants.PACKAGE_TITLE));
@@ -303,38 +299,8 @@ public abstract class AbstractFSharpCodegen extends DefaultCodegen implements Co
             additionalProperties.put(CodegenConstants.USE_DATETIME_OFFSET, useDateTimeOffsetFlag);
         }
 
-        if (additionalProperties.containsKey(CodegenConstants.USE_COLLECTION)) {
-            setUseCollection(convertPropertyToBooleanAndWriteBack(CodegenConstants.USE_COLLECTION));
-        } else {
-            additionalProperties.put(CodegenConstants.USE_COLLECTION, useCollection);
-        }
-
-        if (additionalProperties.containsKey(CodegenConstants.RETURN_ICOLLECTION)) {
-            setReturnICollection(convertPropertyToBooleanAndWriteBack(CodegenConstants.RETURN_ICOLLECTION));
-        } else {
-            additionalProperties.put(CodegenConstants.RETURN_ICOLLECTION, returnICollection);
-        }
-
-        if (additionalProperties.containsKey(CodegenConstants.OPTIONAL_EMIT_DEFAULT_VALUES)) {
-            setOptionalEmitDefaultValue(convertPropertyToBooleanAndWriteBack(CodegenConstants.OPTIONAL_EMIT_DEFAULT_VALUES));
-        } else {
-            additionalProperties.put(CodegenConstants.OPTIONAL_EMIT_DEFAULT_VALUES, optionalEmitDefaultValue);
-        }
-
-        if (additionalProperties.containsKey(CodegenConstants.NETCORE_PROJECT_FILE)) {
-            setNetCoreProjectFileFlag(convertPropertyToBooleanAndWriteBack(CodegenConstants.NETCORE_PROJECT_FILE));
-        } else {
-            additionalProperties.put(CodegenConstants.NETCORE_PROJECT_FILE, netCoreProjectFileFlag);
-        }
-
-        if (additionalProperties.containsKey(CodegenConstants.INTERFACE_PREFIX)) {
-            String useInterfacePrefix = additionalProperties.get(CodegenConstants.INTERFACE_PREFIX).toString();
-            if ("false".equals(useInterfacePrefix.toLowerCase(Locale.ROOT))) {
-                setInterfacePrefix("");
-            } else if (!"true".equals(useInterfacePrefix.toLowerCase(Locale.ROOT))) {
-                // NOTE: if user passes "true" explicitly, we use the default I- prefix. The other supported case here is a custom prefix.
-                setInterfacePrefix(sanitizeName(useInterfacePrefix));
-            }
+        if (additionalProperties.containsKey(CodegenConstants.MODEL_PROPERTY_NAMING)) {
+          setModelPropertyNaming((String) additionalProperties.get(CodegenConstants.MODEL_PROPERTY_NAMING));
         }
 
         // This either updates additionalProperties with the above fixes, or sets the default if the option was not specified.
@@ -693,6 +659,39 @@ public abstract class AbstractFSharpCodegen extends DefaultCodegen implements Co
         return camelize(sanitizeName(operationId));
     }
 
+    public String getModelPropertyNaming() {
+        return this.modelPropertyNaming;
+    }
+
+    public void setModelPropertyNaming(String naming) {
+        if ("original".equals(naming) || "camelCase".equals(naming) ||
+                "PascalCase".equals(naming) || "snake_case".equals(naming)) {
+            this.modelPropertyNaming = naming;
+        } else {
+            throw new IllegalArgumentException("Invalid model property naming '" +
+                    naming + "'. Must be 'original', 'camelCase', " +
+                    "'PascalCase' or 'snake_case'");
+        }
+    }
+
+    
+    public String getNameUsingModelPropertyNaming(String name) {
+      switch (CodegenConstants.MODEL_PROPERTY_NAMING_TYPE.valueOf(getModelPropertyNaming())) {
+          case original:
+              return name;
+          case camelCase:
+              return camelize(name, true);
+          case PascalCase:
+              return camelize(name);
+          case snake_case:
+              return underscore(name);
+          default:
+              throw new IllegalArgumentException("Invalid model property naming '" +
+                      name + "'. Must be 'original', 'camelCase', " +
+                      "'PascalCase' or 'snake_case'");
+      }
+  }
+
     @Override
     public String toVarName(String name) {
         // sanitize name
@@ -703,9 +702,8 @@ public abstract class AbstractFSharpCodegen extends DefaultCodegen implements Co
             return name;
         }
 
-        // camelize the variable name
-        // pet_id => PetId
-        name = camelize(name);
+        name = getNameUsingModelPropertyNaming(name);
+
         // for reserved word or word starting with number, append _
         if (isReservedWord(name) || name.matches("^\\d.*")) {
             name = escapeReservedWord(name);
