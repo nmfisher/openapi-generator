@@ -6,6 +6,7 @@ open Microsoft.AspNetCore.Mvc
 open Microsoft.AspNetCore.Http
 open Newtonsoft.Json
 open Microsoft.Azure.WebJobs
+open System.IO
 
 module {{classname}}Handlers =
 
@@ -23,9 +24,17 @@ module {{classname}}Handlers =
    [<FunctionName("{{operationId}}")>]
     let {{operationId}}
         ([<HttpTrigger(Extensions.Http.AuthorizationLevel.Anonymous, "{{httpMethod}}", Route = "{{contextPath}}{{path}}")>]
-        req:   {{#hasBodyParam}}{{operationId}}BodyParams{{/hasBodyParam}}{{^hasBodyParam}}HttpRequest{{/hasBodyParam}} ) =
+        req:HttpRequest ) =
+      
+      {{#hasBodyParam}}
+      use reader = StreamReader(req.Body)
+      let bodyParams = reader.ReadToEnd() |> JsonConvert.DeserializeObject<{{operationId}}BodyParams> 
+      let result = {{classname}}Service.{{operationId}} bodyParams
+      {{/hasBodyParam}}
+      {{^hasBodyParam}}
+      let result = {{classname}}Service.{{operationId}} ()
+      {{/hasBodyParam}}
 
-      let result = {{classname}}Service.{{operationId}} {{#hasBodyParam}}req{{/hasBodyParam}}{{^hasBodyParam}}(){{/hasBodyParam}}
       match result with 
       {{#responses}}
       | {{operationId}}{{#isDefault}}Default{{/isDefault}}StatusCode{{^isDefault}}{{code}}{{/isDefault}} resolved ->

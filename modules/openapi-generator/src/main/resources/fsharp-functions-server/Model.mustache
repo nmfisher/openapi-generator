@@ -2,6 +2,7 @@ namespace {{packageName}}.{{modelPackage}}
 
 open System
 open System.Collections.Generic
+open Newtonsoft.Json
 {{#imports}}
 open {{import}}
 {{/imports}}
@@ -12,18 +13,22 @@ module {{classname}} =
   {{#model}}
   //#region {{classname}}
 
-  {{^allowableValues}}
+  {{^allowableValues}}  
+  [<CLIMutable>]
   type {{classname}} = {
     {{#vars}}
+    [<JsonProperty(PropertyName = "{{baseName}}")>]
     {{name}} : {{#isDateTime}}{{^required}}Nullable<{{/required}}{{/isDateTime}}{{{dataType}}}{{#isDateTime}}{{^required}}>{{/required}}{{/isDateTime}};
     {{/vars}}
   }
+  {{/allowableValues}}  
+  {{#allowableValues}}
+  {{#enumVars}}
+  let {{name}} = {{#isString}}"{{value}}"{{/isString}}{{#isInteger}}"{{value}}"{{/isInteger}}
+  {{/enumVars}}
+  type {{classname}} = {{#isString}}string{{/isString}}{{#isInteger}}int{{/isInteger}}
   {{/allowableValues}}
   
-  {{#allowableValues}}
-  type {{classname}} = {{#enumVars}}{{name}} of {{#isString}}string{{/isString}}{{#isInteger}}int{{/isInteger}}{{#isLong}}long{{/isLong}}{{#isByte}}long{{/isByte}} {{#hasMore}}| {{/hasMore}}{{/enumVars}}
-  {{/allowableValues}}
-
   //#endregion
   {{/model}}
   {{/models}}
