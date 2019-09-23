@@ -20,7 +20,6 @@ module {{classname}}Handlers =
     /// <summary>
     /// {{#summary}}{{summary}}{{/summary}}
     /// </summary>
-
    [<FunctionName("{{operationId}}")>]
     let {{operationId}}
         ([<HttpTrigger(Extensions.Http.AuthorizationLevel.Anonymous, "{{httpMethod}}", Route = "{{contextPath}}{{path}}")>]
@@ -28,18 +27,41 @@ module {{classname}}Handlers =
       
       {{#hasBodyParam}}
       use reader = StreamReader(req.Body)
-      let bodyParams = reader.ReadToEnd() |> JsonConvert.DeserializeObject<{{operationId}}BodyParams> 
+
+      let mediaTypes = [{{#consumes}}"{{mediaType}}";{{/consumes}}] // currently unused
+      
+      {{#bodyParam}}
+      let bind (contentType:string) body  = 
+        match (contentType.ToLower()) with 
+        {{#isModel}}
+        | "application/json" -> 
+          body |> JsonConvert.DeserializeObject<{{operationId}}BodyParams> 
+        {{/isModel}}
+        {{^isModel}}
+        | "text/plain" -> body :> {{operationId}}BodyParams
+        | "text/plain;charset=utf-8" -> body :> {{operationId}}BodyParams
+        {{/isModel}}
+        | _ -> failwith (sprintf "TODO - ContentType %s not currently supported" contentType)
+      {{/bodyParam}}
+
+      let bodyParams = reader.ReadToEnd() |> bind req.ContentType          
       let result = {{classname}}Service.{{operationId}} bodyParams
       {{/hasBodyParam}}
       {{^hasBodyParam}}
       let result = {{classname}}Service.{{operationId}} ()
       {{/hasBodyParam}}
-
       match result with 
       {{#responses}}
       | {{operationId}}{{#isDefault}}Default{{/isDefault}}StatusCode{{^isDefault}}{{code}}{{/isDefault}} resolved ->
-        let json = JsonConvert.SerializeObject resolved.content
-        ContentResult(Content = json, ContentType = "application/json", StatusCode = System.Nullable({{code}})) 
+        {{^primitiveType}}      
+          let content = JsonConvert.SerializeObject resolved.content
+          let responseContentType = "application/json"
+        {{/primitiveType}}
+        {{#primitiveType}}
+          let content = resolved.content
+          let responseContentType = "text/plain"
+        {{/primitiveType}}
+          ContentResult(Content = content, ContentType = responseContentType, StatusCode = System.Nullable({{code}})) 
       {{/responses}}
 
     {{/operation}}
