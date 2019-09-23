@@ -17,7 +17,7 @@ module {{classname}}ServiceImplementation =
       
       {{#operations}}
       {{#operation}}
-        member this.{{operationId}} {{^hasBodyParam}}(){{/hasBodyParam}}{{#hasBodyParam}}(params:{{operationId}}BodyParams){{/hasBodyParam}} =
+        member this.{{operationId}} {{^hasBodyParam}}(){{/hasBodyParam}}{{#hasBodyParam}}(parameters:{{operationId}}BodyParams){{/hasBodyParam}} =
           {{#responses}}
           {{#-first}}
           {{#hasMore}}
