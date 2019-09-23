@@ -29,6 +29,7 @@ import org.openapitools.codegen.templating.mustache.*;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.Exception;
 
 import java.io.File;
 import java.util.*;
@@ -357,7 +358,11 @@ public abstract class AbstractFSharpCodegen extends DefaultCodegen implements Co
         
       for(String k : objs.keySet()) {
         CodegenModel model = ModelUtils.getModelByName(k, objs);
+        if(model == null || model.classname == null) {
+          throw new RuntimeException("Null model encountered");
+        }
         dependencies.put(model.classname, model.imports);
+        
         classNames.add(model.classname);
       }
       

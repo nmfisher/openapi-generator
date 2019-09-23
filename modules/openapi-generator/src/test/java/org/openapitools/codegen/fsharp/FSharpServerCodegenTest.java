@@ -23,7 +23,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Arrays;
+import java.lang.Exception;
 
 @SuppressWarnings("static-method")
 public class FSharpServerCodegenTest {
@@ -34,18 +37,23 @@ public class FSharpServerCodegenTest {
 
         final CodegenModel wheel = new CodegenModel();
         wheel.setImports(new HashSet<String>(Arrays.asList()));
+        wheel.setClassname("wheel");
 
         final CodegenModel bike = new CodegenModel();
         bike.setImports(new HashSet<String>(Arrays.asList("wheel")));
+        bike.setClassname("bike");
 
         final CodegenModel parent = new CodegenModel();
         parent.setImports(new HashSet<String>(Arrays.asList("bike", "car")));
+        parent.setClassname("parent");
 
         final CodegenModel car = new CodegenModel();
         car.setImports(new HashSet<String>(Arrays.asList("wheel")));
+        car.setClassname("car");
 
         final CodegenModel child = new CodegenModel();
         child.setImports(new HashSet<String>(Arrays.asList("car", "bike", "parent")));
+        child.setClassname("child");
 
         Map<String, Object> models = new HashMap<String,Object>();
         models.put("parent", Collections.singletonMap("models", Collections.singletonList(Collections.singletonMap("model", parent))));
@@ -57,13 +65,6 @@ public class FSharpServerCodegenTest {
         Map<String,Object> sorted = codegen.postProcessDependencyOrders(models);
         
         Object[] keys = sorted.keySet().toArray();
-        System.out.println("############");
-        System.out.println(keys[0]);
-        System.out.println(keys[1]);
-        System.out.println(keys[2]);
-        System.out.println(keys[3]);
-        System.out.println(keys[4]);
-
         
         Assert.assertTrue(keys[0] == "wheel");
         Assert.assertTrue(keys[1] == "bike" || keys[1] == "car");
