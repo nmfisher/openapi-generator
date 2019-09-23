@@ -88,11 +88,11 @@ public class FsharpFunctionsServerCodegen extends AbstractFSharpCodegen {
         String implFolder = sourceFolder + File.separator + "impl";
 
         supportingFiles.add(new SupportingFile("gitignore.mustache", "", ".gitignore"));
-        supportingFiles.add(new SupportingFile("build.sh", projectFolder, "build.sh"));
-        supportingFiles.add(new SupportingFile("build.cmd", projectFolder, "build.cmd"));
+        supportingFiles.add(new SupportingFile("build.sh.mustache", projectFolder, "build.sh"));
+        supportingFiles.add(new SupportingFile("build.bat.mustache", projectFolder, "build.bat"));
         supportingFiles.add(new SupportingFile("host.json", "", "host.json"));
         supportingFiles.add(new SupportingFile("local.settings.json", "", "local.settings.json"));
-        supportingFiles.add(new SupportingFile("Project.fsproj.mustache", "", packageName + ".fsproj"));
+        supportingFiles.add(new SupportingFile("Project.fsproj.mustache", projectFolder, packageName + ".fsproj"));
 
 
     }
