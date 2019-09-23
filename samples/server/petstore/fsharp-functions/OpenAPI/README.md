@@ -1,50 +1,38 @@
-# {{packageName}}
+# OpenAPI
 
-An [F# Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-fsharp) server stub for the {{packageName}} package, created via the [OpenAPI generator](https://github.com/OpenAPITools/openapi-generator/).
+An [F# Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-fsharp) server stub for the OpenAPI package, created via the [OpenAPI generator](https://github.com/OpenAPITools/openapi-generator/).
 
 ## Models
 
 The following models have been auto-generated from the provided OpenAPI schema:
 
-{{#apiInfo}}
-{{#models}}
-{{#model}}
-- model/{{classname}}Model.fs
-{{/model}}
-{{/models}}
-{{/apiInfo}}
+- model/UserModel.fs
+- model/TagModel.fs
+- model/CategoryModel.fs
+- model/OrderModel.fs
+- model/PetModel.fs
+- model/ApiResponseModel.fs
 
 ## Operations
 
 Handlers have been auto-generated from the operations specified in the OpenAPI schema as follows:
 
-{{#apiInfo}}
-{{#operations}}
-{{#operation}}
-- api/{{classname}}Handler.fs
-{{/operation}}
-{{/operations}}
-{{/apiInfo}}
 
 ## Operation Parameters
 
 Types have been generated for the URL, query, form, header and cookie parameters passed to each handler in the following files:
 
-{{#apiInfo}}
-{{#apis}}
-- api/{{classname}}HandlerParams.fs
-{{/apis}}
-{{/apiInfo}}
+- api/PetApiHandlerParams.fs
+- api/StoreApiHandlerParams.fs
+- api/UserApiHandlerParams.fs
 
 ## Service Interfaces
 
 Handlers will attempt to bind parameters to the applicable type and pass to a Service specific to that Handler. Service interfaces have been generated as follows:
 
-{{#apiInfo}}
-{{#apis}}
-- api/{{classname}}ServiceInterface.fs
-{{/apis}}
-{{/apiInfo}}
+- api/PetApiServiceInterface.fs
+- api/StoreApiServiceInterface.fs
+- api/UserApiServiceInterface.fs
 
 Each Service contains functions for each [OperationId], each accepting a [OperationId]Params object that wraps the operation's parameters.
 
@@ -79,11 +67,9 @@ type FindPetsByStatusResult = FindPetsByStatusDefaultStatusCode of FindPetsBySta
 
 Stubbed service implementations of those interfaces have been generated as follows:
 
-{{#apiInfo}}
-{{#apis}}
-- impl/{{classname}}Service.fs
-{{/apis}}
-{{/apiInfo}}
+- impl/PetApiService.fs
+- impl/StoreApiService.fs
+- impl/UserApiService.fs
 
 You should manually edit these files to implement your business logic.
 
